@@ -1,9 +1,10 @@
 pipeline {  
-  agent any 
+  agent any
+   
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))  
     } 
-  }
+  
   environment {
     TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short HEAD)').trim()
   }
