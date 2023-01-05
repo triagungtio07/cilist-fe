@@ -2,9 +2,6 @@ pipeline {
   agent any 
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))  
-    if (env.BRANCH_NAME == 'main') {
-    timeout(time: 3600, unit: 'SECONDS') {  input message: 'Deploy to Production ? (Click "Proceed" to continue)'
-        }
     } 
   }
   environment {
