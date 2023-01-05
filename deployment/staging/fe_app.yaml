@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cilist-fe-staging
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: cilist-fe-staging
+  template:
+    metadata:
+      labels:
+        app: cilist-fe-staging
+    spec:
+      containers:
+      - name: cilist-fe-staging
+        image: triagungtio/cilist-fe:{{NEW_TAG}}
+        ports:
+        - containerPort: 3000
+      env:
+      - name: REACT_APP_BACKEND_URL
+        value: https://be.coffestory.de
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cilist-fe-staging
+  namespace: staging
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: cilist-fe-staging
