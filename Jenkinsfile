@@ -31,13 +31,13 @@ pipeline {
         steps {
             script {
              if (env.BRANCH_NAME == 'dev') {
-            sh 'docker push triagungtio/cilist-fe:0.$BUILD_NUMBER-dev .'
+            sh 'docker push triagungtio/cilist-fe:0.$BUILD_NUMBER-dev'
                 }
                 else if (env.BRANCH_NAME == 'staging') {
-            sh 'docker push triagungtio/cilist-fe:0.$BUILD_NUMBER-staging .'
+            sh 'docker push triagungtio/cilist-fe:0.$BUILD_NUMBER-staging'
                 }
                 else if (env.BRANCH_NAME == 'main') {
-            sh 'docker push triagungtio/cilist-fe:0.$BUILD_NUMBER-production .'
+            sh 'docker push triagungtio/cilist-fe:0.$BUILD_NUMBER-production'
                 }
                 else {
                     sh 'echo Nothing to Push'
