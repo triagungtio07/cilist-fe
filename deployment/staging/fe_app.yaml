@@ -19,7 +19,7 @@ spec:
         - containerPort: 3000
       env:
       - name: REACT_APP_BACKEND_URL
-        value: https://be.coffestory.de
+        value: https://staging-be.coffestory.de
 
 ---
 apiVersion: v1

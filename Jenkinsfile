@@ -1,31 +1,27 @@
 pipeline {  
   agent any 
   options {
-    buildDiscarder(logRotator(numToKeepStr: '5'))   
+    buildDiscarder(logRotator(numToKeepStr: '5'))  
+    if (env.BRANCH_NAME == 'main') {
+    timeout(time: 3600, unit: 'SECONDS') {  input message: 'Deploy to Production ? (Click "Proceed" to continue)'
+        }
+    } 
   }
   environment {
-    GIT_COMMIT_SHORT = sh(returnStdout: true, script: '''echo $GIT_COMMIT | head -c 7''')
+    TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short HEAD)').trim()
   }
   stages {
-    stage('Prepare .env') {
-        steps {
-            sh 'echo GIT_COMMIT_SHORT=$(echo $GIT_COMMIT_SHORT) > .env'
-        }
-    }
     stage('Build Image') {
         steps {
             script {
                 if (env.BRANCH_NAME == 'dev') {  
-            sh 'cd /var/lib/jenkins/workspace/big_project_dev/backend && docker build -t triagungtio/cilist-be:$GIT_COMMIT_SHORT-dev .'                  
-            sh 'cd /var/lib/jenkins/workspace/big_project_dev/frontend && docker build -t triagungtio/cilist-fe:$GIT_COMMIT_SHORT-dev .'                  
+            sh 'docker build -t triagungtio/cilist-fe:0.$BUILD_NUMBER-dev .'                                  
                 }
                  else if (env.BRANCH_NAME == 'staging') {
-            sh 'cd /var/lib/jenkins/workspace/big_project_dev/backend && docker build -t triagungtio/cilist-be:$GIT_COMMIT_SHORT-staging .'                  
-            sh 'cd /var/lib/jenkins/workspace/big_project_dev/frontend && docker build -t triagungtio/cilist-fe:$GIT_COMMIT_SHORT-staging .'  
+            sh 'docker build -t triagungtio/cilist-fe:0.$BUILD_NUMBER-staging .'   
                 }
                 else if (env.BRANCH_NAME == 'main') {
-            sh 'cd /var/lib/jenkins/workspace/big_project_dev/backend && docker build -t triagungtio/cilist-be:$GIT_COMMIT_SHORT-production .'                  
-            sh 'cd /var/lib/jenkins/workspace/big_project_dev/frontend && docker build -t triagungtio/cilist-fe:$GIT_COMMIT_SHORT-production .' 
+            sh 'docker build -t triagungtio/cilist-fe:0.$BUILD_NUMBER-production .' 
                 }
                 else {
                     sh 'echo Nothing to Build'
@@ -37,16 +33,13 @@ pipeline {
         steps {
             script {
              if (env.BRANCH_NAME == 'dev') {
-            sh 'docker push triagungtio/cilist-be:$GIT_COMMIT_SHORT-dev'
-            sh 'docker push triagungtio/cilist-fe:$GIT_COMMIT_SHORT-dev'
+            sh 'docker push triagungtio/cilist-fe:0.$BUILD_NUMBER-dev .'
                 }
                 else if (env.BRANCH_NAME == 'staging') {
-            sh 'docker push triagungtio/cilist-be:$GIT_COMMIT_SHORT-staging'
-            sh 'docker push triagungtio/cilist-fe:$GIT_COMMIT_SHORT-staging'
+            sh 'docker push triagungtio/cilist-fe:0.$BUILD_NUMBER-staging .'
                 }
                 else if (env.BRANCH_NAME == 'main') {
-            sh 'docker push triagungtio/cilist-be:$GIT_COMMIT_SHORT-production'
-            sh 'docker push triagungtio/cilist-fe:$GIT_COMMIT_SHORT-production'
+            sh 'docker push triagungtio/cilist-fe:0.$BUILD_NUMBER-production .'
                 }
                 else {
                     sh 'echo Nothing to Push'
@@ -58,27 +51,18 @@ pipeline {
         steps {
         script {
              if (env.BRANCH_NAME == 'dev') {
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
-                        sh "kubectl apply -f deployment/dev/configmap.yaml"
-                        sh 'cat deployment/dev/be_app.yaml | sed "s/{{NEW_TAG}}/$GIT_COMMIT_SHORT-dev/g" |  kubectl apply -f -'
-                        sh 'cat deployment/dev/fe_app.yaml | sed "s/{{NEW_TAG}}/$GIT_COMMIT_SHORT-dev/g" |  kubectl apply -f -'
-                        sh "kubectl apply -f deployment/dev/be_hpa.yaml"
+                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {                       
+                        sh 'cat deployment/dev/fe_app.yaml | sed "s/{{NEW_TAG}}/0.$BUILD_NUMBER-dev/g" |  kubectl apply -f -'   
                  }
                 }
                 else if (env.BRANCH_NAME == 'staging') {
                     withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
-                        sh "kubectl apply -f deployment/dev/configmap.yaml"
-                        sh 'cat deployment/dev/be_app.yaml | sed "s/{{NEW_TAG}}/$GIT_COMMIT_SHORT-staging/g" |  kubectl apply -f -'
-                        sh 'cat deployment/dev/fe_app.yaml | sed "s/{{NEW_TAG}}/$GIT_COMMIT_SHORT-staging/g" |  kubectl apply -f -'
-                        sh "kubectl apply -f deployment/staging/be_hpa.yaml"
+                        sh 'cat deployment/staging/fe_app.yaml | sed "s/{{NEW_TAG}}/0.$BUILD_NUMBER-staging/g" |  kubectl apply -f -'   
                  }
                 }
                 else if (env.BRANCH_NAME == 'main') {
                     withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
-                       sh "kubectl apply -f deployment/dev/configmap.yaml"
-                        sh 'cat deployment/dev/be_app.yaml | sed "s/{{NEW_TAG}}/$GIT_COMMIT_SHORT-production/g" |  kubectl apply -f -'
-                        sh 'cat deployment/dev/fe_app.yaml | sed "s/{{NEW_TAG}}/$GIT_COMMIT_SHORT-production/g" |  kubectl apply -f -'
-                        sh "kubectl apply -f deployment/prod/be_hpa.yaml"
+                        sh 'cat deployment/production/fe_app.yaml | sed "s/{{NEW_TAG}}/0.$BUILD_NUMBER-production/g" |  kubectl apply -f -'   
                  }
                 }
                 else {
