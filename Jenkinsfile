@@ -45,48 +45,44 @@ pipeline {
         }
       }
     }
-    stage('Deploy to Kubernetes Cluster') {
-        steps {
-        script {
-             if (env.BRANCH_NAME == 'dev') {
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {                       
-                        sh 'cat deployment/dev/fe_app.yaml | sed "s/{{NEW_TAG}}/0.$BUILD_NUMBER-dev/g" |  kubectl apply -f -'   
-                 }
-                }
-                else if (env.BRANCH_NAME == 'staging') {
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
-                        sh 'cat deployment/staging/fe_app.yaml | sed "s/{{NEW_TAG}}/0.$BUILD_NUMBER-staging/g" |  kubectl apply -f -'   
-                 }
-                }
-                else if (env.BRANCH_NAME == 'main') {
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
-                        sh 'cat deployment/production/fe_app.yaml | sed "s/{{NEW_TAG}}/0.$BUILD_NUMBER-production/g" |  kubectl apply -f -'   
-                 }
-                }
-                else {
-                    sh 'echo Nothing to deploy'
-                }
-        }
-      }
-    } 
+    // stage('Deploy to Kubernetes Cluster') {
+    //     steps {
+    //     script {
+    //          if (env.BRANCH_NAME == 'dev') {
+    //                 withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {                       
+    //                     sh 'cat deployment/dev/fe_app.yaml | sed "s/{{NEW_TAG}}/0.$BUILD_NUMBER-dev/g" |  kubectl apply -f -'   
+    //              }
+    //             }
+    //             else if (env.BRANCH_NAME == 'staging') {
+    //                 withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
+    //                     sh 'cat deployment/staging/fe_app.yaml | sed "s/{{NEW_TAG}}/0.$BUILD_NUMBER-staging/g" |  kubectl apply -f -'   
+    //              }
+    //             }
+    //             else if (env.BRANCH_NAME == 'main') {
+    //                 withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
+    //                     sh 'cat deployment/production/fe_app.yaml | sed "s/{{NEW_TAG}}/0.$BUILD_NUMBER-production/g" |  kubectl apply -f -'   
+    //              }
+    //             }
+    //             else {
+    //                 sh 'echo Nothing to deploy'
+    //             }
+    //     }
+    //   }
+    // } 
 }
 
-     post {
+      post {
             success {
-                if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == 'prod' ) {   
-                    slackSend channel: '#jenkins',
-                    color: 'good',
-                    message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
-                }
+                slackSend channel: '#jenkins',
+                color: 'good',
+                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
             }    
 
             failure {
-                if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == 'prod' ) {
-                    slackSend channel: '#jenkins',
-                    color: 'danger',
-                    message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
+                slackSend channel: '#jenkins',
+                color: 'danger',
+                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
                 }
-            }
 
         }
 }
