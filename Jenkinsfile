@@ -54,6 +54,7 @@ pipeline {
                     message: "*BUILDING IMAGES:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}" 
                     sh 'docker build -t triagungtio/cilist-fe:0.$BUILD_NUMBER-production .' 
                 }
+                
                 else {
                     sh 'echo Nothing to Build'
                 }
