@@ -74,11 +74,11 @@ pipeline {
  post {
         success {
                script {
-               if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == 'prod' ) {
+               //if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == 'prod' ) {
                 slackSend channel: '#jenkins',
                     color: 'good',
                     message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}" 
-               } 
+              // } 
                }
         } 
         failure {
