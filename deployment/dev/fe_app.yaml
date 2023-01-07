@@ -28,7 +28,7 @@ metadata:
   name: cilist-fe-dev
   namespace: dev
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - port: 80
     targetPort: 3000
