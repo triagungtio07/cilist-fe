@@ -45,20 +45,6 @@ pipeline {
         }
       }
     }
-     post {
-            success {
-                slackSend channel: '#jenkins',
-                color: 'good',
-                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
-            }    
-
-            failure {
-                slackSend channel: '#jenkins',
-                color: 'danger',
-                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
-                }
-
-        }
     // stage('Deploy to Kubernetes Cluster') {
     //     steps {
     //     script {
@@ -85,6 +71,26 @@ pipeline {
     // } 
 }
 
-     
+ post {
+        success {
+               script {
+               if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == 'prod' ) {
+                slackSend channel: '#jenkins',
+                    color: 'good',
+                    message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}" 
+               } 
+               }
+        } 
+        failure {
+                 slackSend channel: '#jenkins',
+                        color: 'danger',
+                        message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
+         }
+    }
+
 }
+
+
+
+
 
