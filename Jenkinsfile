@@ -9,7 +9,7 @@ pipeline {
     TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short HEAD)').trim()
   }
   stages {
-    stage("Slack"){
+    stage("Notify New Running Pipeline"){
         steps {
                 script {
                     if (env.BRANCH_NAME == 'dev') {  
@@ -121,6 +121,78 @@ pipeline {
         }
       }
     } 
+    stage('Check Deployment') {
+        steps {
+        script {
+             if (env.BRANCH_NAME == 'dev') {
+                slackSend channel: '#jenkins',
+                color: 'good',
+                message: "*CHECKING DEPLOYMENT:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}" 
+                        try {
+                          withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
+                                sh "kubectl rollout status deployment  cilist-fe-dev -n dev"
+                         }
+                        } catch (err) {                   
+                            slackSend channel: '#jenkins',
+                            color: 'danger',
+                            message: "*DEPLOYMENT ISSUE:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} Start Revert Deployment" 
+                            
+                            currentBuild.result = 'FAILURE'
+                            //Start undo deployment
+                            withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
+                                sh "kubectl rollout undo deployment  cilist-fe-dev -n dev"
+                                sh "kubectl rollout status deployment  cilist-fe-dev -n dev"
+                            }             
+                        }       
+                }    
+                else if (env.BRANCH_NAME == 'staging') {
+                    slackSend channel: '#jenkins',
+                    color: 'good',
+                    message: "*CHECKING DEPLOYMENT:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}" 
+                        try {
+                          withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
+                                sh "kubectl rollout status deployment  cilist-fe-staging -n staging"
+                         }
+                        } catch (err) {                   
+                            slackSend channel: '#jenkins',
+                            color: 'danger',
+                            message: "*DEPLOYMENT ISSUE:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} Start Revert Deployment" 
+                            
+                            currentBuild.result = 'FAILURE'
+                            //Start undo deployment
+                            withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
+                                sh "kubectl rollout undo deployment  cilist-fe-staging -n staging"
+                                sh "kubectl rollout status deployment  cilist-fe-staging -n staging"
+                            }             
+                        }       
+                 }
+                else if (env.BRANCH_NAME == 'main') {
+                    slackSend channel: '#jenkins',
+                    color: 'good',
+                    message: "*CHECKING DEPLOYMENT:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}" 
+                        try {
+                          withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
+                                sh "kubectl rollout status deployment  cilist-fe-prod -n prod"
+                         }
+                        } catch (err) {                   
+                            slackSend channel: '#jenkins',
+                            color: 'danger',
+                            message: "*DEPLOYMENT ISSUE:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} Start Revert Deployment" 
+                            
+                            currentBuild.result = 'FAILURE'
+                            //Start undo deployment
+                            withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', serverUrl: '') {
+                                sh "kubectl rollout undo deployment  cilist-fe-prod -n prod"
+                                sh "kubectl rollout status deployment  cilist-fe-prod -n prod"
+                            }             
+                        }       
+                 } 
+                 else {
+                    sh 'echo Nothing to deploy'
+                 }
+                }
+         }
+      }
 }
 
  post {
