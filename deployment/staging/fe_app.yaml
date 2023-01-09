@@ -17,9 +17,9 @@ spec:
         image: triagungtio/cilist-fe:{{NEW_TAG}}
         ports:
         - containerPort: 3000
-      env:
-      - name: REACT_APP_BACKEND_URL
-        value: https://staging-be.coffestory.de
+        env:
+         - name: REACT_APP_BACKEND_URL
+           value: https://staging-be.coffestory.de
 
 ---
 apiVersion: v1
