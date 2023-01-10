@@ -12,7 +12,7 @@ pipeline {
     stage ("Prompt for input") {
       steps {
         script {
-         if (env.BRANCH_NAME == 'dev') {  
+         if (env.BRANCH_NAME == 'main') {  
           env.USERNAME = input message: 'Please enter the username',
                              parameters: [string(defaultValue: 'developer',
                                           description: '',
