@@ -12,14 +12,17 @@ pipeline {
     stage ("Prompt for input") {
       steps {
         script {
+         if (env.BRANCH_NAME == 'dev') {  
           env.USERNAME = input message: 'Please enter the username',
-                             parameters: [string(defaultValue: '',
+                             parameters: [string(defaultValue: 'developer',
                                           description: '',
                                           name: 'Username')]
           env.PASSWORD = input message: 'Please enter the password',
-                             parameters: [password(defaultValue: '',
+                             parameters: [password(defaultValue: 'cilist',
                                           description: '',
                                           name: 'Password')]
+
+         }
         }
         echo "Username: ${env.USERNAME}"
         echo "Password: ${env.PASSWORD}"
