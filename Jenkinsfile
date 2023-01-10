@@ -192,7 +192,28 @@ pipeline {
                  }
                 }
          }
-      }
+    }
+    stage('Delete Image') {
+        steps {
+            script {
+                if (env.BRANCH_NAME == 'dev') {   
+                    sh 'docker image rm triagungtio/cilist-fe:0.$BUILD_NUMBER-dev .'                                  
+                }
+                 else if (env.BRANCH_NAME == 'staging') {
+                    sh 'docker image rm triagungtio/cilist-fe:0.$BUILD_NUMBER-staging .'   
+                }
+                else if (env.BRANCH_NAME == 'main') {
+                    sh 'docker image rm triagungtio/cilist-fe:0.$BUILD_NUMBER-production .' 
+                }
+                
+                else {
+                    sh 'echo Nothing to Build'
+                }
+            }
+        }
+    }
+
+
 }
 
 
