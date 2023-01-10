@@ -11,7 +11,6 @@ pipeline {
   stages {
     stage ("Start Deployments") {
       steps {
-
        		script {
              if (env.BRANCH_NAME == 'main'){
 
@@ -22,7 +21,6 @@ pipeline {
 			
 	                echo "Initiating deployment"
              }
-          
             }
       }
     }
