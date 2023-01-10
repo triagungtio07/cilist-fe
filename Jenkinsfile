@@ -12,20 +12,15 @@ pipeline {
     stage ("Prompt for input") {
       steps {
         script {
-         if (env.BRANCH_NAME == 'main') {  
-          env.USERNAME = input message: 'Please enter the username',
-                             parameters: [string(defaultValue: 'developer',
-                                          description: '',
-                                          name: 'Username')]
-          env.PASSWORD = input message: 'Please enter the password',
-                             parameters: [password(defaultValue: 'cilist',
-                                          description: '',
-                                          name: 'Password')]
-
-         }
+        input {
+                message "Ready to deploy?"
+                ok "Yes"
+                parameters {
+                    string(name: "DEPLOY_ENV", defaultValue: "production")
+                }
+            }
         }
-        echo "Username: ${env.USERNAME}"
-        echo "Password: ${env.PASSWORD}"
+       
       }
     }
   
