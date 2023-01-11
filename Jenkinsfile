@@ -13,13 +13,12 @@ pipeline {
       steps {
        		script {
              if (env.BRANCH_NAME == 'main'){
-
                // Create an Approval Button with a timeout of 15minutes.
-	                timeout(time: 15, unit: "MINUTES") {
-	                    input message: 'Do you want to approve the deployment?', ok: 'Yes'
-	                }
-			
-	                echo "Initiating deployment"
+	            timeout(time: 15, unit: "MINUTES") {
+	                input message: 'Do you want to approve the deployment?', ok: 'Yes'
+	            }
+		
+	            echo "Initiating deployment"
              }
             }
       }
