@@ -9,23 +9,21 @@ pipeline {
     TAG = sh(returnStdout: true, script: 'echo $(git rev-parse --short HEAD)').trim()
   }
   stages {
-    stage ("Prompt for input") {
+    stage ("Start Deployments") {
       steps {
-        script {
-         if (env.BRANCH_NAME == 'main') {  
-          env.USERNAME = input message: 'Please enter the username',
-                             parameters: [string(defaultValue: '',
-                                          description: '',
-                                          name: 'Username')]
-          env.PASSWORD = input message: 'Please enter the password',
-                             parameters: [password(defaultValue: '',
-                                          description: '',
-                                          name: 'Password')]
 
-         }
-        }
-        echo "Username: ${env.USERNAME}"
-        echo "Password: ${env.PASSWORD}"
+       		script {
+             if (env.BRANCH_NAME == 'main'){
+
+               // Create an Approval Button with a timeout of 15minutes.
+	                timeout(time: 15, unit: "MINUTES") {
+	                    input message: 'Do you want to approve the deployment?', ok: 'Yes'
+	                }
+			
+	                echo "Initiating deployment"
+             }
+          
+            }
       }
     }
   
