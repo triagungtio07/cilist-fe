@@ -25,6 +25,7 @@ pipeline {
       }
     }
   
+  
     stage("Notify New Running Pipeline"){
         steps {
                 script {
