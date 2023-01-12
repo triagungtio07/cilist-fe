@@ -11,7 +11,7 @@ const EditUser = () => {
   const { id } = useParams();
 
   useEffect(() => {
-    document.title = 'Cilist - Edit User';
+    document.title = 'Cilist - Edit User - Test Update';
     getUserById();
   }, []);
 
