@@ -40,8 +40,8 @@ const UserList = () => {
         <table className="table is-striped is-fullwidth">
           <thead>
             <tr>
-              <th>No</th>
-              <th>Name</th>
+              <th>No Test </th>
+              <th>Name Test  </th>
               <th>Email</th>
               <th>Gender</th>
               <th>Actions</th>
