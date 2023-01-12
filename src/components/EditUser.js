@@ -39,7 +39,7 @@ const EditUser = () => {
   return (
     <div className="columns mt-5 is-centered">
       <div className="column is-half">
-        <Banner title="Edit User" />
+        <Banner title="Edit User Test Update" />
         <form onSubmit={updateUser}>
           <div className="field">
             <label className="label">Name</label>
